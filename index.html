@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      
+      <title>Webchat</title>
+      <style>
+         input,
+      label {
+            margin: 2rem 0;
+}
+* {
+				font-family: sans-serif;
+				margin: 0;
+				padding: 0;
+			}
+      .header-area {
+				height: 6%;
+				background: rgb(60,179,113);
+				box-shadow: 0 0.25rem 0.25rem rgba(0, 0, 0, 0.2), 0 0 1rem rgba(0, 0, 0, 0.2);
+				color: white;
+				padding: 4px;
+			}
+		
+       html{
+            background-color: rgb(255, 255, 255);
+         }
+      #message{
+            width: 30%;
+				height: 100%;
+				resize: none;
+				padding: 5px;
+}
+      button{
+            border: 0;
+				width: 12%;
+				background: rgb(60,179,113);
+				color: white;
+				padding: 10px;
+				font-size: 18px;
+				position: relative;
+				margin: 8px;
+    
+}
+      input{
+            height: 1.5cm;
+            width: 10cm;
+            border-radius: 20px;
+            font-family: sans-serif;
+            font-weight: bold;
+            left: 20cms;
+}
+      </style>
+   </head>
+    
+   <script src = "/socket.io/socket.io.js"></script>
+   <script>
+      var socket = io();
+      function setUsername() {
+         socket.emit('setUsername', document.getElementById('name').value);
+      };
+      var user;
+      socket.on('userExists', function(data) {
+         document.getElementById('error-container').innerHTML = data;
+      });
+      socket.on('userSet', function(data) {
+         user = data.username;
+         document.body.innerHTML = '<div class="header-area">\
+			<h1> Con - Chat </h1>\
+			</div><input type = "text" id = "message">\
+         <button type = "button" name = "button" onclick = "sendMessage()">Send</button>\
+         <div id = "message-container"></div>';
+      });
+      function sendMessage() {
+         var msg = document.getElementById('message').value;
+         if(msg) {
+            socket.emit('msg', {message: msg, user: user});
+         }
+      }
+      socket.on('newmsg', function(data) {
+         if(user) {
+            document.getElementById('message-container').innerHTML += '<div><b>' + 
+               data.user + '</b>: ' + data.message + '</div>'
+         }
+      })
+   </script>
+   
+   <body>
+      <div class="header-area">
+			<h1> Con - Chat </h1>
+			
+		</div>
+      <div id = "error-container"></div>
+      <input id = "name" type = "text" name = "name" value = "" 
+         placeholder = "Enter your name!">
+      <button type = "button" name = "button" onclick = "setUsername()">
+         Proceed To Chat
+      </button>
+   </body>
+</html>
